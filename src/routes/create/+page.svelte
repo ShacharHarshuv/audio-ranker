@@ -77,6 +77,13 @@
 			/>
 		</div>
 
+		<button
+			class="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
+			type="submit"
+		>
+			Create project
+		</button>
+
 		{#if files.length > 0}
 			<section class="space-y-3">
 				<h2 class="text-sm font-medium text-zinc-800">Aliases</h2>
@@ -102,12 +109,5 @@
 				</div>
 			</section>
 		{/if}
-
-		<button
-			class="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
-			type="submit"
-		>
-			Create project
-		</button>
 	</form>
 </main>
