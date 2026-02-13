@@ -40,6 +40,15 @@
 		applyResult(ratingsById, winnerId, loserId);
 		currentPair = pickNextPair(shuffledItems, ratingsById);
 	};
+
+	const handleAudioPlay = (event: Event) => {
+		const currentAudio = event.currentTarget;
+		if (!(currentAudio instanceof HTMLAudioElement)) return;
+
+		for (const audio of document.querySelectorAll('audio')) {
+			if (audio !== currentAudio && !audio.paused) audio.pause();
+		}
+	};
 </script>
 
 <main
@@ -70,7 +79,12 @@
 							{item.alias}
 						</h2>
 					</div>
-					<audio class="mb-4 w-full" controls preload="metadata">
+					<audio
+						class="mb-4 w-full"
+						controls
+						preload="metadata"
+						onplay={handleAudioPlay}
+					>
 						<source src={item.src} type="audio/mpeg" />
 					</audio>
 					<button
