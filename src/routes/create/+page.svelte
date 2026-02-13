@@ -44,6 +44,7 @@
 	</header>
 
 	<form
+		id="create-project-form"
 		class="space-y-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm md:p-6"
 		method="POST"
 		enctype="multipart/form-data"
@@ -83,31 +84,35 @@
 		>
 			Create project
 		</button>
-
-		{#if files.length > 0}
-			<section class="space-y-3">
-				<h2 class="text-sm font-medium text-zinc-800">Aliases</h2>
-				<div class="space-y-3">
-					{#each files as file, index}
-						<div class="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-							<p class="truncate text-xs text-zinc-500">{file.name}</p>
-							<label
-								class="mt-2 block text-xs font-medium text-zinc-700"
-								for={`alias-${index}`}
-							>
-								Display name
-							</label>
-							<input
-								class="mt-1 w-full rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-sm outline-none ring-zinc-400 focus:ring"
-								id={`alias-${index}`}
-								name="aliases"
-								required
-								bind:value={aliases[index]}
-							/>
-						</div>
-					{/each}
-				</div>
-			</section>
-		{/if}
 	</form>
+
+	{#if files.length > 0}
+		<section class="space-y-2">
+			<h2 class="text-sm font-medium text-zinc-700">Aliases</h2>
+			<div class="space-y-2">
+				{#each files as file, index}
+					<div class="grid items-center gap-2 sm:grid-cols-[1fr_220px]">
+						<p class="truncate text-xs text-zinc-500" title={file.name}>
+							{file.name}
+						</p>
+						<label
+							class="sr-only"
+							for={`alias-${index}`}
+						>
+							Alias for {file.name}
+						</label>
+						<input
+							class="w-full rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-sm outline-none ring-zinc-400 focus:ring"
+							id={`alias-${index}`}
+							form="create-project-form"
+							name="aliases"
+							placeholder="Alias"
+							required
+							bind:value={aliases[index]}
+						/>
+					</div>
+				{/each}
+			</div>
+		</section>
+	{/if}
 </main>
