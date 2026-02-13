@@ -16,7 +16,10 @@
 	const ratingsById = $state(createRatings(shuffledItems));
 
 	for (const vote of currentData().votes) {
-		if (!ratingsById[vote.winnerAudioFileId] || !ratingsById[vote.loserAudioFileId]) {
+		if (
+			!ratingsById[vote.winnerAudioFileId] ||
+			!ratingsById[vote.loserAudioFileId]
+		) {
 			continue;
 		}
 		applyResult(ratingsById, vote.winnerAudioFileId, vote.loserAudioFileId);
@@ -59,7 +62,8 @@
 		});
 
 		if (!response.ok) {
-			submitError = 'Could not save that vote. Your local ranking still updated.';
+			submitError =
+				'Could not save that vote. Your local ranking still updated.';
 		}
 	};
 
@@ -79,7 +83,8 @@
 	<header class="space-y-2">
 		<h1 class="text-3xl font-semibold tracking-tight">{data.project.name}</h1>
 		<p class="text-sm text-zinc-600">
-			Pick the better clip each round. Share this page URL to collect rankings from others.
+			Pick the better clip each round. Share this page URL to collect rankings
+			from others.
 		</p>
 	</header>
 
@@ -91,7 +96,9 @@
 		</section>
 	{:else}
 		{#if submitError}
-			<p class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+			<p
+				class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+			>
 				{submitError}
 			</p>
 		{/if}
@@ -131,17 +138,23 @@
 			<ol class="space-y-2">
 				{#each leaderboard as item, index}
 					<li
-						class="grid grid-cols-[2rem_1fr_auto] items-center gap-3 rounded-md bg-zinc-50 px-3 py-2"
+						class="grid grid-cols-[2ch_1fr_auto] items-center gap-3 rounded-md bg-zinc-50 px-3 py-2"
 					>
 						<span class="text-xs text-zinc-500">{index + 1}</span>
 						<span class="truncate text-sm font-medium" title={item.filename}
 							>{item.alias}</span
 						>
 						<span class="text-xs text-zinc-600">
-							mu {item.rating.mu.toFixed(2)} | sigma {item.rating.sigma.toFixed(
-								2
-							)} | conf
-							{item.confidence.toFixed(2)}
+							<span class="sm:hidden"
+								>{item.rating.mu.toFixed(2)} | {item.rating.sigma.toFixed(
+									2
+								)}</span
+							>
+							<span class="hidden sm:inline"
+								>mu {item.rating.mu.toFixed(2)} | sigma {item.rating.sigma.toFixed(
+									2
+								)} | conf {item.confidence.toFixed(2)}</span
+							>
 						</span>
 					</li>
 				{/each}
