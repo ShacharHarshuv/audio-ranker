@@ -81,7 +81,15 @@
 	class="mx-auto flex min-h-screen max-w-6xl flex-col gap-6 px-4 py-8 md:px-6"
 >
 	<header class="space-y-2">
-		<h1 class="text-3xl font-semibold tracking-tight">{data.project.name}</h1>
+		<div class="flex items-center justify-between gap-3">
+			<h1 class="text-3xl font-semibold tracking-tight">{data.project.name}</h1>
+			<a
+				href="/create"
+				class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+			>
+				Create
+			</a>
+		</div>
 		<p class="text-sm text-zinc-600">
 			Pick the better clip each round. Share this page URL to collect rankings
 			from others.
