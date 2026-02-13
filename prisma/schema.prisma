@@ -1,0 +1,46 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Project {
+  id         String       @id @default(cuid())
+  name       String
+  createdAt  DateTime     @default(now())
+  audioFiles AudioFile[]
+  votes      RankingVote[]
+}
+
+model AudioFile {
+  id        String        @id @default(cuid())
+  projectId String
+  alias     String
+  filename  String
+  url       String
+  createdAt DateTime      @default(now())
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  winnerIn  RankingVote[] @relation("WinnerVotes")
+  loserIn   RankingVote[] @relation("LoserVotes")
+
+  @@index([projectId])
+}
+
+model RankingVote {
+  id                String   @id @default(cuid())
+  projectId         String
+  winnerAudioFileId String
+  loserAudioFileId  String
+  voterSessionId    String?
+  createdAt         DateTime @default(now())
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  winnerAudioFile   AudioFile @relation("WinnerVotes", fields: [winnerAudioFileId], references: [id], onDelete: Cascade)
+  loserAudioFile    AudioFile @relation("LoserVotes", fields: [loserAudioFileId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
