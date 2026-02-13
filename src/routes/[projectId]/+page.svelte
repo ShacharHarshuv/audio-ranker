@@ -97,7 +97,7 @@
 		{/if}
 
 		<section class="grid gap-4 md:grid-cols-2">
-			{#each currentPair as item}
+			{#each currentPair as item (item.id)}
 				<article
 					class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
 				>
@@ -110,10 +110,9 @@
 						class="mb-4 w-full"
 						controls
 						preload="metadata"
+						src={item.src}
 						onplay={handleAudioPlay}
-					>
-						<source src={item.src} type="audio/mpeg" />
-					</audio>
+					></audio>
 					<button
 						class="w-full rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
 						onclick={() => void chooseWinner(item.id)}

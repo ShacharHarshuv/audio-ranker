@@ -2,9 +2,23 @@
 	let files = $state<File[]>([]);
 	let aliases = $state<string[]>([]);
 
-	const aliasFor = (filename: string, index: number) => {
-		const base = filename.replace(/\.[^.]+$/, '').trim();
-		return base || `Clip ${index + 1}`;
+	const presetAliases = [
+		'Atlas',
+		'Ember',
+		'River',
+		'Stone',
+		'Orbit',
+		'Flame',
+		'Echo',
+		'Sky',
+		'Path',
+		'Seed'
+	];
+
+	const aliasFor = (index: number) => {
+		const preset = presetAliases[index % presetAliases.length];
+		const cycle = Math.floor(index / presetAliases.length);
+		return cycle === 0 ? preset : `${preset} ${cycle + 1}`;
 	};
 
 	const handleFilesChange = (event: Event) => {
@@ -12,15 +26,20 @@
 		if (!(input instanceof HTMLInputElement) || !input.files) return;
 
 		files = Array.from(input.files);
-		aliases = files.map((file, index) => aliases[index] || aliasFor(file.name, index));
+		aliases = files.map((_, index) => aliases[index] || aliasFor(index));
 	};
 </script>
 
-<main class="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-4 py-8 md:px-6">
+<main
+	class="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-4 py-8 md:px-6"
+>
 	<header class="space-y-2">
-		<h1 class="text-3xl font-semibold tracking-tight">Create Audio Ranker Project</h1>
+		<h1 class="text-3xl font-semibold tracking-tight">
+			Create Audio Ranker Project
+		</h1>
 		<p class="text-sm text-zinc-600">
-			Name your project, upload audio files, then share the generated project URL.
+			Name your project, upload audio files, then share the generated project
+			URL.
 		</p>
 	</header>
 
@@ -65,7 +84,10 @@
 					{#each files as file, index}
 						<div class="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
 							<p class="truncate text-xs text-zinc-500">{file.name}</p>
-							<label class="mt-2 block text-xs font-medium text-zinc-700" for={`alias-${index}`}>
+							<label
+								class="mt-2 block text-xs font-medium text-zinc-700"
+								for={`alias-${index}`}
+							>
 								Display name
 							</label>
 							<input

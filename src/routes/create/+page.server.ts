@@ -2,7 +2,24 @@ import { fail, redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { uploadAudioFile } from '$lib/server/uploads';
 
-const fallbackAlias = (index: number) => `Clip ${index + 1}`;
+const presetAliases = [
+	'Atlas',
+	'Ember',
+	'River',
+	'Stone',
+	'Orbit',
+	'Flame',
+	'Echo',
+	'Sky',
+	'Path',
+	'Seed'
+];
+
+const fallbackAlias = (index: number) => {
+	const preset = presetAliases[index % presetAliases.length];
+	const cycle = Math.floor(index / presetAliases.length);
+	return cycle === 0 ? preset : `${preset} ${cycle + 1}`;
+};
 
 export const actions = {
 	default: async ({ request }) => {
@@ -15,7 +32,9 @@ export const actions = {
 
 		const files = formData
 			.getAll('files')
-			.filter((entry): entry is File => entry instanceof File && entry.size > 0);
+			.filter(
+				(entry): entry is File => entry instanceof File && entry.size > 0
+			);
 
 		if (files.length < 2) {
 			return fail(400, { error: 'Upload at least two audio files.' });
