@@ -56,3 +56,23 @@ export const POST = async ({ params, request, cookies, url }) => {
 
 	return json({ ok: true });
 };
+
+export const DELETE = async ({ params, cookies }) => {
+	const voterSessionId = cookies.get('audioRankerSessionId');
+	if (!voterSessionId) {
+		return json({ error: 'No session found.' }, { status: 400 });
+	}
+
+	const lastVote = await db.rankingVote.findFirst({
+		where: { projectId: params.projectId, voterSessionId },
+		orderBy: { createdAt: 'desc' }
+	});
+
+	if (!lastVote) {
+		return json({ error: 'No vote to undo.' }, { status: 404 });
+	}
+
+	await db.rankingVote.delete({ where: { id: lastVote.id } });
+
+	return json({ ok: true });
+};

@@ -5,6 +5,7 @@
 		leaderboardConfidence,
 		pickNextPair
 	} from '$lib/ranker';
+	import { Rating } from 'ts-trueskill';
 
 	let { data } = $props();
 	const currentData = () => data;
@@ -27,6 +28,15 @@
 
 	let currentPair = $state(pickNextPair(shuffledItems, ratingsById));
 	let submitError = $state('');
+
+	type UndoEntry = {
+		winnerId: string;
+		loserId: string;
+		previousRatings: Record<string, { mu: number; sigma: number }>;
+		previousPair: typeof currentPair;
+	};
+
+	const undoStack: UndoEntry[] = [];
 	let showResetDialog = $state(false);
 	let showCloneDialog = $state(false);
 	let cloneName = $state(data.project.name);
@@ -70,6 +80,12 @@
 	const chooseWinner = async (winnerId: string) => {
 		const loserId =
 			currentPair[0].id === winnerId ? currentPair[1].id : currentPair[0].id;
+
+		const previousRatings = Object.fromEntries(
+			Object.entries(ratingsById).map(([id, r]) => [id, { mu: r.mu, sigma: r.sigma }])
+		);
+		undoStack.push({ winnerId, loserId, previousRatings, previousPair: currentPair });
+
 		applyResult(ratingsById, winnerId, loserId);
 		currentPair = pickNextPair(shuffledItems, ratingsById);
 		submitError = '';
@@ -98,6 +114,25 @@
 		await fetch(`/api/projects/${data.project.id}/reset`, { method: 'POST' });
 	};
 
+	const undo = async () => {
+		const entry = undoStack.pop();
+		if (!entry) return;
+
+		for (const [id, { mu, sigma }] of Object.entries(entry.previousRatings)) {
+			ratingsById[id] = new Rating(mu, sigma);
+		}
+		currentPair = entry.previousPair;
+
+		await fetch(`/api/projects/${data.project.id}/vote`, { method: 'DELETE' });
+	};
+
+	const handleKeydown = (e: KeyboardEvent) => {
+		if (e.key === 'z' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
+			e.preventDefault();
+			void undo();
+		}
+	};
+
 	const handleAudioPlay = (event: Event) => {
 		const currentAudio = event.currentTarget;
 		if (!(currentAudio instanceof HTMLAudioElement)) return;
@@ -107,6 +142,8 @@
 		}
 	};
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <main
 	class="mx-auto flex min-h-screen max-w-6xl flex-col gap-6 px-4 py-8 md:px-6"
