@@ -27,6 +27,25 @@
 
 	let currentPair = $state(pickNextPair(shuffledItems, ratingsById));
 	let submitError = $state('');
+	let showCloneDialog = $state(false);
+	let cloneName = $state(data.project.name);
+	let cloning = $state(false);
+
+	const cloneProject = async () => {
+		cloning = true;
+		const response = await fetch(`/api/projects/${data.project.id}/clone`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ name: cloneName })
+		});
+
+		if (response.ok) {
+			const { id } = await response.json();
+			window.location.href = `/${id}`;
+		}
+
+		cloning = false;
+	};
 
 	const leaderboard = $derived(
 		shuffledItems
@@ -85,12 +104,20 @@
 	<header class="space-y-2">
 		<div class="flex items-center justify-between gap-3">
 			<h1 class="text-3xl font-semibold tracking-tight">{data.project.name}</h1>
-			<a
-				href="/create"
-				class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
-			>
-				Create
-			</a>
+			<div class="flex gap-2">
+				<button
+					onclick={() => (showCloneDialog = true)}
+					class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+				>
+					Clone
+				</button>
+				<a
+					href="/create"
+					class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+				>
+					Create
+				</a>
+			</div>
 		</div>
 		<p class="text-sm text-zinc-600">
 			Pick the better clip each round. Share this page URL to collect rankings
@@ -145,13 +172,13 @@
 				<div class="flex items-center justify-between">
 					<h2 class="text-lg font-medium">Leaderboard</h2>
 					<span class="text-xs text-zinc-500"
-						>{(confidence * 100).toFixed(0)}% confident</span
+						>{confidence.toFixed(0)}% confident</span
 					>
 				</div>
 				<div class="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
 					<div
 						class="h-full rounded-full bg-zinc-900 transition-all duration-500"
-						style="width: {confidence * 100}%"
+						style="width: {confidence}%"
 					></div>
 				</div>
 			</div>
@@ -180,5 +207,49 @@
 				{/each}
 			</ol>
 		</section>
+	{/if}
+
+	{#if showCloneDialog}
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+			onclick={() => (showCloneDialog = false)}
+			onkeydown={(e) => e.key === 'Escape' && (showCloneDialog = false)}
+			role="button"
+			tabindex="-1"
+		>
+			<div
+				class="w-full max-w-sm rounded-xl border border-zinc-200 bg-white p-6 shadow-lg"
+				onclick={(e) => e.stopPropagation()}
+				onkeydown={() => {}}
+				role="dialog"
+				tabindex="-1"
+			>
+				<h2 class="mb-4 text-lg font-semibold">Clone Project</h2>
+				<label class="mb-1 block text-sm font-medium text-zinc-700" for="clone-name"
+					>Project name</label
+				>
+				<input
+					id="clone-name"
+					class="mb-4 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-zinc-500 focus:outline-none"
+					bind:value={cloneName}
+					onkeydown={(e) => e.key === 'Enter' && !cloning && cloneProject()}
+				/>
+				<div class="flex justify-end gap-2">
+					<button
+						class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+						onclick={() => (showCloneDialog = false)}
+					>
+						Cancel
+					</button>
+					<button
+						class="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50"
+						disabled={cloning || !cloneName.trim()}
+						onclick={() => void cloneProject()}
+					>
+						{cloning ? 'Cloning…' : 'Clone'}
+					</button>
+				</div>
+			</div>
+		</div>
 	{/if}
 </main>
