@@ -2,6 +2,7 @@
 	import {
 		applyResult,
 		createRatings,
+		leaderboardConfidence,
 		pickNextPair
 	} from '$lib/ranker';
 
@@ -40,6 +41,10 @@
 				if (b.rating.mu !== a.rating.mu) return b.rating.mu - a.rating.mu;
 				return a.sortSeed - b.sortSeed;
 			})
+	);
+
+	const confidence = $derived(
+		leaderboardConfidence(leaderboard.map((item) => item.rating))
 	);
 
 	const chooseWinner = async (winnerId: string) => {
@@ -136,9 +141,19 @@
 		</section>
 
 		<section class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-			<div class="mb-3 flex items-center justify-between">
-				<h2 class="text-lg font-medium">Leaderboard</h2>
-				<span class="text-xs text-zinc-500">Sorted by mu</span>
+			<div class="mb-3 space-y-2">
+				<div class="flex items-center justify-between">
+					<h2 class="text-lg font-medium">Leaderboard</h2>
+					<span class="text-xs text-zinc-500"
+						>{(confidence * 100).toFixed(0)}% confident</span
+					>
+				</div>
+				<div class="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+					<div
+						class="h-full rounded-full bg-zinc-900 transition-all duration-500"
+						style="width: {confidence * 100}%"
+					></div>
+				</div>
 			</div>
 			<ol class="space-y-2">
 				{#each leaderboard as item, index}
