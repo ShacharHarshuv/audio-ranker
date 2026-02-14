@@ -49,5 +49,3 @@ export const applyResult = (ratingsById: RatingsById, winnerId: string, loserId:
 	ratingsById[winnerId] = winner;
 	ratingsById[loserId] = loser;
 };
-
-export const confidenceScore = (rating: Rating) => rating.mu - rating.sigma * 3;

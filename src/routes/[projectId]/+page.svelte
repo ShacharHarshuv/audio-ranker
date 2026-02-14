@@ -1,7 +1,6 @@
 <script lang="ts">
 	import {
 		applyResult,
-		confidenceScore,
 		createRatings,
 		pickNextPair
 	} from '$lib/ranker';
@@ -34,13 +33,11 @@
 				const rating = ratingsById[item.id];
 				return {
 					...item,
-					rating,
-					confidence: confidenceScore(rating)
+					rating
 				};
 			})
 			.sort((a, b) => {
 				if (b.rating.mu !== a.rating.mu) return b.rating.mu - a.rating.mu;
-				if (b.confidence !== a.confidence) return b.confidence - a.confidence;
 				return a.sortSeed - b.sortSeed;
 			})
 	);
@@ -161,7 +158,7 @@
 							<span class="hidden sm:inline"
 								>mu {item.rating.mu.toFixed(2)} | sigma {item.rating.sigma.toFixed(
 									2
-								)} | conf {item.confidence.toFixed(2)}</span
+								)}</span
 							>
 						</span>
 					</li>
