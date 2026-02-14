@@ -27,6 +27,7 @@
 
 	let currentPair = $state(pickNextPair(shuffledItems, ratingsById));
 	let submitError = $state('');
+	let showResetDialog = $state(false);
 	let showCloneDialog = $state(false);
 	let cloneName = $state(data.project.name);
 	let cloning = $state(false);
@@ -88,6 +89,15 @@
 		}
 	};
 
+	const resetRatings = async () => {
+		for (const item of shuffledItems) {
+			ratingsById[item.id] = createRatings([item])[item.id];
+		}
+		currentPair = pickNextPair(shuffledItems, ratingsById);
+
+		await fetch(`/api/projects/${data.project.id}/reset`, { method: 'POST' });
+	};
+
 	const handleAudioPlay = (event: Event) => {
 		const currentAudio = event.currentTarget;
 		if (!(currentAudio instanceof HTMLAudioElement)) return;
@@ -105,6 +115,12 @@
 		<div class="flex items-center justify-between gap-3">
 			<h1 class="text-3xl font-semibold tracking-tight">{data.project.name}</h1>
 			<div class="flex gap-2">
+				<button
+					onclick={() => (showResetDialog = true)}
+					class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+				>
+					Reset
+				</button>
 				<button
 					onclick={() => (showCloneDialog = true)}
 					class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
@@ -247,6 +263,46 @@
 						onclick={() => void cloneProject()}
 					>
 						{cloning ? 'Cloning…' : 'Clone'}
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	{#if showResetDialog}
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+			onclick={() => (showResetDialog = false)}
+			onkeydown={(e) => e.key === 'Escape' && (showResetDialog = false)}
+			role="button"
+			tabindex="-1"
+		>
+			<div
+				class="w-full max-w-sm rounded-xl border border-zinc-200 bg-white p-6 shadow-lg"
+				onclick={(e) => e.stopPropagation()}
+				onkeydown={() => {}}
+				role="dialog"
+				tabindex="-1"
+			>
+				<h2 class="mb-2 text-lg font-semibold">Reset all ratings?</h2>
+				<p class="mb-4 text-sm text-zinc-600">
+					This will permanently delete all votes and reset every rating to its default. This cannot be undone.
+				</p>
+				<div class="flex justify-end gap-2">
+					<button
+						class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+						onclick={() => (showResetDialog = false)}
+					>
+						Cancel
+					</button>
+					<button
+						class="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-500"
+						onclick={() => {
+							showResetDialog = false;
+							void resetRatings();
+						}}
+					>
+						Reset
 					</button>
 				</div>
 			</div>
