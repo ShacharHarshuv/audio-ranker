@@ -116,12 +116,6 @@
 			<h1 class="text-3xl font-semibold tracking-tight">{data.project.name}</h1>
 			<div class="flex gap-2">
 				<button
-					onclick={() => (showResetDialog = true)}
-					class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
-				>
-					Reset
-				</button>
-				<button
 					onclick={() => (showCloneDialog = true)}
 					class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
 				>
@@ -129,7 +123,7 @@
 				</button>
 				<a
 					href="/create"
-					class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+					class="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
 				>
 					Create
 				</a>
@@ -187,9 +181,17 @@
 			<div class="mb-3 space-y-2">
 				<div class="flex items-center justify-between">
 					<h2 class="text-lg font-medium">Leaderboard</h2>
-					<span class="text-xs text-zinc-500"
-						>{confidence.toFixed(0)}% confident</span
-					>
+					<div class="flex items-center gap-3">
+						<button
+							onclick={() => (showResetDialog = true)}
+							class="text-xs font-medium text-zinc-500 transition hover:text-zinc-800"
+						>
+							Reset
+						</button>
+						<span class="text-xs text-zinc-500"
+							>{confidence.toFixed(0)}% confident</span
+						>
+					</div>
 				</div>
 				<div class="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
 					<div
