@@ -240,12 +240,21 @@
 			<ol class="space-y-2">
 				{#each leaderboard as item, index}
 					<li
-						class="grid grid-cols-[2ch_1fr_auto] items-center gap-3 rounded-md bg-zinc-50 px-3 py-2"
+						class="grid grid-cols-[2ch_1fr_auto] items-start gap-3 rounded-md bg-zinc-50 px-3 py-2"
 					>
 						<span class="text-xs text-zinc-500">{index + 1}</span>
-						<span class="truncate text-sm font-medium" title={item.filename}
-							>{item.alias}</span
-						>
+						<div class="min-w-0">
+							<span class="truncate text-sm font-medium" title={item.filename}
+								>{item.alias}</span
+							>
+							<audio
+								class="mt-2 w-full"
+								controls
+								preload="metadata"
+								src={item.src}
+								onplay={handleAudioPlay}
+							></audio>
+						</div>
 						<span class="text-xs text-zinc-600">
 							<span class="sm:hidden"
 								>{item.rating.mu.toFixed(2)} | {item.rating.sigma.toFixed(
