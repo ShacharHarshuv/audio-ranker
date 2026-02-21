@@ -98,8 +98,10 @@
 		</button>
 	</div>
 	<div class="min-w-0">
-		<div class="flex flex-col gap-2 lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-3">
-			<div class="min-w-0">
+		<div class="flex items-start gap-2">
+			<div class="min-w-0 flex-1">
+				<div class="flex flex-col gap-2 lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-3">
+					<div class="min-w-0">
 				<div class="flex items-center justify-between gap-2">
 					<span
 						class="block truncate text-sm font-medium leading-6"
@@ -118,16 +120,7 @@
 						>
 					</span>
 				</div>
-				<div class="mt-1 flex justify-end">
-					<button
-						type="button"
-						class="text-[11px] font-medium text-zinc-600 transition hover:text-zinc-900"
-						onclick={() => void onToggleEliminated(item.id, !item.eliminated)}
-					>
-						{item.eliminated ? 'Restore' : 'Eliminate'}
-					</button>
-				</div>
-				<div class="flex items-center">
+				<div class="flex items-center gap-2">
 					<input
 						class="seek w-full"
 						type="range"
@@ -166,11 +159,38 @@
 					</select>
 				</div>
 			</div>
-			<CandidateNote
-				{projectId}
-				audioFileId={item.id}
-				{item}
-			/>
+					<CandidateNote
+						{projectId}
+						audioFileId={item.id}
+						{item}
+					/>
+				</div>
+			</div>
+			<button
+				type="button"
+				class={`mt-1 flex size-9 shrink-0 items-center justify-center rounded-md border transition ${
+					item.eliminated
+						? 'border-zinc-300 bg-zinc-200 text-zinc-700 hover:bg-zinc-300'
+						: 'border-red-200 bg-red-100 text-red-700 hover:bg-red-200'
+				}`}
+				onclick={() => void onToggleEliminated(item.id, !item.eliminated)}
+				aria-label={item.eliminated ? 'Restore track' : 'Eliminate track'}
+				title={item.eliminated ? 'Restore track' : 'Eliminate track'}
+			>
+				{#if item.eliminated}
+					<svg viewBox="0 0 24 24" class="size-5 fill-current" aria-hidden="true">
+						<path
+							d="M12 4a8 8 0 1 0 8 8h2a10 10 0 1 1-2.93-7.07L22 2v6h-6l2.66-2.66A7.96 7.96 0 0 0 12 4z"
+						></path>
+					</svg>
+				{:else}
+					<svg viewBox="0 0 24 24" class="size-5 fill-current" aria-hidden="true">
+						<path
+							d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM7 10h2v8H7v-8z"
+						></path>
+					</svg>
+				{/if}
+			</button>
 		</div>
 		<audio
 			class="hidden"
