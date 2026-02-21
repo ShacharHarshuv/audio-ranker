@@ -152,19 +152,6 @@
 		}
 	};
 
-	const saveNote = async (audioFileId: string, note: string) => {
-		const response = await fetch(`/api/projects/${data.project.id}/comment`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ audioFileId, note })
-		});
-
-		if (!response.ok) {
-			return false;
-		}
-
-		return true;
-	};
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -265,9 +252,9 @@
 				{#each leaderboard as item, index}
 					<CandidateTrack
 						{item}
+						projectId={data.project.id}
 						{index}
 						onAudioPlay={handleAudioPlay}
-						onNoteSave={saveNote}
 					/>
 				{/each}
 			</ol>
