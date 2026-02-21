@@ -62,34 +62,51 @@
 </script>
 
 <li
-	class="grid grid-cols-[2ch_auto_1fr_auto] items-start gap-3 rounded-md bg-zinc-50 px-3 py-2"
+	class="grid grid-cols-[auto_1fr] items-start gap-3 rounded-md bg-zinc-50 px-3 py-2"
 >
-	<span class="text-xs text-zinc-500">{index + 1}</span>
-	<button
-		type="button"
-		class="p-1 text-zinc-700 hover:text-zinc-900"
-		onclick={togglePlay}
-		aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
-		title={isPlaying ? 'Pause' : 'Play'}
-	>
-		{#if isPlaying}
-			<svg viewBox="0 0 24 24" class="size-4 fill-current" aria-hidden="true">
-				<rect x="6" y="5" width="4" height="14" rx="1"></rect>
-				<rect x="14" y="5" width="4" height="14" rx="1"></rect>
-			</svg>
-		{:else}
-			<svg viewBox="0 0 24 24" class="size-4 fill-current" aria-hidden="true">
-				<path
-					d="M8 5.5v13a1 1 0 0 0 1.5.87l10-6.5a1 1 0 0 0 0-1.74l-10-6.5A1 1 0 0 0 8 5.5z"
-				></path>
-			</svg>
-		{/if}
-	</button>
+	<div class="flex items-center gap-2">
+		<span class="text-xs leading-6 text-zinc-500">{index + 1}</span>
+		<button
+			type="button"
+			class="flex size-6 items-center justify-center text-zinc-700 hover:text-zinc-900"
+			onclick={togglePlay}
+			aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
+			title={isPlaying ? 'Pause' : 'Play'}
+		>
+			{#if isPlaying}
+				<svg viewBox="0 0 24 24" class="size-4 fill-current" aria-hidden="true">
+					<rect x="6" y="5" width="4" height="14" rx="1"></rect>
+					<rect x="14" y="5" width="4" height="14" rx="1"></rect>
+				</svg>
+			{:else}
+				<svg viewBox="0 0 24 24" class="size-4 fill-current" aria-hidden="true">
+					<path
+						d="M8 5.5v13a1 1 0 0 0 1.5.87l10-6.5a1 1 0 0 0 0-1.74l-10-6.5A1 1 0 0 0 8 5.5z"
+					></path>
+				</svg>
+			{/if}
+		</button>
+	</div>
 	<div class="min-w-0">
-		<span class="truncate text-sm font-medium" title={item.filename}>
-			{item.alias}
-		</span>
-		<div class="flex items-center gap-2">
+		<div class="flex items-center justify-between gap-2">
+			<span
+				class="block truncate text-sm font-medium leading-6"
+				title={item.filename}
+			>
+				{item.alias}
+			</span>
+			<span class="shrink-0 text-xs text-zinc-600">
+				<span class="sm:hidden"
+					>{item.rating.mu.toFixed(2)} | {item.rating.sigma.toFixed(2)}</span
+				>
+				<span class="hidden sm:inline"
+					>mu {item.rating.mu.toFixed(2)} | sigma {item.rating.sigma.toFixed(
+						2
+					)}</span
+				>
+			</span>
+		</div>
+		<div class="flex items-center">
 			<input
 				class="seek w-full"
 				type="range"
@@ -101,15 +118,30 @@
 				oninput={onSeek}
 			/>
 			<select
-				class="rounded border border-zinc-300 bg-white px-1 py-0.5 text-xs"
+				class="appearance-none cursor-pointer border-0 bg-transparent px-0 py-0 text-right text-xs text-zinc-400 outline-none"
 				value={String(playbackRate)}
 				onchange={onPlaybackRateChange}
 			>
-				<option value="0.75">0.75x</option>
-				<option value="1">1x</option>
-				<option value="1.25">1.25x</option>
-				<option value="1.5">1.5x</option>
-				<option value="2">2x</option>
+				<option
+					class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
+					value="0.75">0.75x</option
+				>
+				<option
+					class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
+					value="1">1x</option
+				>
+				<option
+					class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
+					value="1.25">1.25x</option
+				>
+				<option
+					class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
+					value="1.5">1.5x</option
+				>
+				<option
+					class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
+					value="2">2x</option
+				>
 			</select>
 		</div>
 		<audio
@@ -124,16 +156,6 @@
 			onended={onPause}
 		></audio>
 	</div>
-	<span class="text-xs text-zinc-600">
-		<span class="sm:hidden"
-			>{item.rating.mu.toFixed(2)} | {item.rating.sigma.toFixed(2)}</span
-		>
-		<span class="hidden sm:inline"
-			>mu {item.rating.mu.toFixed(2)} | sigma {item.rating.sigma.toFixed(
-				2
-			)}</span
-		>
-	</span>
 </li>
 
 <style>
