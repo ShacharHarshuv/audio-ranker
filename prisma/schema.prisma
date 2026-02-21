@@ -22,6 +22,7 @@ model AudioFile {
   projectId String
   alias     String
   note      String        @default("")
+  eliminated Boolean      @default(false)
   filename  String
   url       String
   createdAt DateTime      @default(now())

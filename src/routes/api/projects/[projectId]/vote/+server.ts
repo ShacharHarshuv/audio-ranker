@@ -24,12 +24,16 @@ export const POST = async ({ params, request, cookies, url }) => {
 			projectId: project.id,
 			id: { in: [winnerAudioFileId, loserAudioFileId] }
 		},
-		select: { id: true },
+		select: { id: true, eliminated: true },
 		take: 2
 	});
 
 	if (files.length !== 2) {
 		return json({ error: 'Vote files do not belong to this project.' }, { status: 400 });
+	}
+
+	if (files.some((file) => file.eliminated)) {
+		return json({ error: 'Cannot vote on eliminated files.' }, { status: 400 });
 	}
 
 	const existingSession = cookies.get('audioRankerSessionId');

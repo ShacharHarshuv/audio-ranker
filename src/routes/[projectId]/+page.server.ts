@@ -31,6 +31,7 @@ export const load = async ({ params }) => {
 			id: file.id,
 			alias: file.alias,
 			note: file.note,
+			eliminated: file.eliminated,
 			src: file.url,
 			filename: file.filename
 		})),

@@ -12,9 +12,11 @@
 	let { data }: PageProps = $props();
 	const currentData = () => data;
 
-	const shuffledItems = [...currentData().audioItems]
+	let shuffledItems = $state(
+		[...currentData().audioItems]
 		.map((item) => ({ ...item, sortSeed: Math.random() }))
-		.sort((a, b) => a.sortSeed - b.sortSeed);
+		.sort((a, b) => a.sortSeed - b.sortSeed)
+	);
 
 	const ratingsById = $state(createRatings(shuffledItems));
 
@@ -28,7 +30,10 @@
 		applyResult(ratingsById, vote.winnerAudioFileId, vote.loserAudioFileId);
 	}
 
-	let currentPair = $state(pickNextPair(shuffledItems, ratingsById));
+	const activeItems = $derived(shuffledItems.filter((item) => !item.eliminated));
+	const getNextPair = () =>
+		activeItems.length >= 2 ? pickNextPair(activeItems, ratingsById) : null;
+	let currentPair = $state(getNextPair());
 	let submitError = $state('');
 
 	type UndoEntry = {
@@ -41,7 +46,7 @@
 	const undoStack: UndoEntry[] = [];
 	let showResetDialog = $state(false);
 	let showCloneDialog = $state(false);
-	let cloneName = $state(data.project.name);
+	let cloneName = $state('');
 	let cloning = $state(false);
 
 	const cloneProject = async () => {
@@ -70,16 +75,20 @@
 				};
 			})
 			.sort((a, b) => {
+				if (a.eliminated !== b.eliminated) return a.eliminated ? 1 : -1;
 				if (b.rating.mu !== a.rating.mu) return b.rating.mu - a.rating.mu;
 				return a.sortSeed - b.sortSeed;
 			})
 	);
 
 	const confidence = $derived(
-		leaderboardConfidence(leaderboard.map((item) => item.rating))
+		leaderboardConfidence(
+			leaderboard.filter((item) => !item.eliminated).map((item) => item.rating)
+		)
 	);
 
 	const chooseWinner = async (winnerId: string) => {
+		if (!currentPair) return;
 		const loserId =
 			currentPair[0].id === winnerId ? currentPair[1].id : currentPair[0].id;
 
@@ -97,7 +106,7 @@
 		});
 
 		applyResult(ratingsById, winnerId, loserId);
-		currentPair = pickNextPair(shuffledItems, ratingsById);
+		currentPair = getNextPair();
 		submitError = '';
 
 		const response = await fetch(`/api/projects/${data.project.id}/vote`, {
@@ -119,7 +128,7 @@
 		for (const item of shuffledItems) {
 			ratingsById[item.id] = createRatings([item])[item.id];
 		}
-		currentPair = pickNextPair(shuffledItems, ratingsById);
+		currentPair = getNextPair();
 
 		await fetch(`/api/projects/${data.project.id}/reset`, { method: 'POST' });
 	};
@@ -134,6 +143,27 @@
 		currentPair = entry.previousPair;
 
 		await fetch(`/api/projects/${data.project.id}/vote`, { method: 'DELETE' });
+	};
+
+	const toggleEliminated = async (audioFileId: string, eliminated: boolean) => {
+		const item = shuffledItems.find((candidate) => candidate.id === audioFileId);
+		if (!item) return;
+
+		const previous = item.eliminated;
+		item.eliminated = eliminated;
+		currentPair = getNextPair();
+		submitError = '';
+
+		const response = await fetch(`/api/projects/${data.project.id}/eliminate`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ audioFileId, eliminated })
+		});
+
+		if (response.ok) return;
+		item.eliminated = previous;
+		currentPair = getNextPair();
+		submitError = 'Could not save elimination state.';
 	};
 
 	const handleKeydown = (e: KeyboardEvent) => {
@@ -164,7 +194,10 @@
 			<h1 class="text-3xl font-semibold tracking-tight">{data.project.name}</h1>
 			<div class="flex gap-2">
 				<button
-					onclick={() => (showCloneDialog = true)}
+					onclick={() => {
+						cloneName = currentData().project.name;
+						showCloneDialog = true;
+					}}
 					class="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
 				>
 					Clone
@@ -198,32 +231,40 @@
 			</p>
 		{/if}
 
-		<section class="grid gap-4 md:grid-cols-2">
-			{#each currentPair as item (item.id)}
-				<article
-					class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
-				>
-					<div class="mb-3 flex items-start justify-between gap-3">
-						<h2 class="text-lg font-medium" title={item.filename}>
-							{item.alias}
-						</h2>
-					</div>
-					<audio
-						class="mb-4 w-full"
-						controls
-						preload="metadata"
-						src={item.src}
-						onplay={handleAudioPlay}
-					></audio>
-					<button
-						class="w-full rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
-						onclick={() => void chooseWinner(item.id)}
+		{#if activeItems.length < 2}
+			<section
+				class="rounded-xl border border-zinc-200 bg-white p-4 text-sm text-zinc-700 shadow-sm"
+			>
+				Need at least two non-eliminated tracks for 1:1 comparisons.
+			</section>
+		{:else if currentPair}
+			<section class="grid gap-4 md:grid-cols-2">
+				{#each currentPair as item (item.id)}
+					<article
+						class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
 					>
-						I like this better!
-					</button>
-				</article>
-			{/each}
-		</section>
+						<div class="mb-3 flex items-start justify-between gap-3">
+							<h2 class="text-lg font-medium" title={item.filename}>
+								{item.alias}
+							</h2>
+						</div>
+						<audio
+							class="mb-4 w-full"
+							controls
+							preload="metadata"
+							src={item.src}
+							onplay={handleAudioPlay}
+						></audio>
+						<button
+							class="w-full rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-zinc-700"
+							onclick={() => void chooseWinner(item.id)}
+						>
+							I like this better!
+						</button>
+					</article>
+				{/each}
+			</section>
+		{/if}
 
 		<section class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
 			<div class="mb-3 space-y-2">
@@ -255,6 +296,7 @@
 						projectId={data.project.id}
 						{index}
 						onAudioPlay={handleAudioPlay}
+						onToggleEliminated={toggleEliminated}
 					/>
 				{/each}
 			</ol>

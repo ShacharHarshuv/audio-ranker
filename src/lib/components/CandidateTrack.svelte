@@ -5,12 +5,17 @@
 
 	type Props = {
 		item: AudioItem & { rating: Rating };
-	projectId: string;
+		projectId: string;
 		index: number;
 		onAudioPlay: (event: Event) => void;
+		onToggleEliminated: (
+			audioFileId: string,
+			eliminated: boolean
+		) => Promise<void>;
 	};
 
-let { item, projectId, index, onAudioPlay }: Props = $props();
+	let { item, projectId, index, onAudioPlay, onToggleEliminated }: Props =
+		$props();
 
 	let audioEl: HTMLAudioElement | undefined = $state();
 	let isPlaying = $state(false);
@@ -65,7 +70,9 @@ let { item, projectId, index, onAudioPlay }: Props = $props();
 </script>
 
 <li
-	class="grid grid-cols-[auto_1fr] items-start gap-3 rounded-md bg-zinc-50 px-3 py-2"
+	class={`grid grid-cols-[auto_1fr] items-start gap-3 rounded-md px-3 py-2 ${
+		item.eliminated ? 'bg-zinc-100 opacity-60' : 'bg-zinc-50'
+	}`}
 >
 	<div class="flex items-center gap-2">
 		<span class="text-xs leading-6 text-zinc-500">{index + 1}</span>
@@ -110,6 +117,15 @@ let { item, projectId, index, onAudioPlay }: Props = $props();
 							)}</span
 						>
 					</span>
+				</div>
+				<div class="mt-1 flex justify-end">
+					<button
+						type="button"
+						class="text-[11px] font-medium text-zinc-600 transition hover:text-zinc-900"
+						onclick={() => void onToggleEliminated(item.id, !item.eliminated)}
+					>
+						{item.eliminated ? 'Restore' : 'Eliminate'}
+					</button>
 				</div>
 				<div class="flex items-center">
 					<input
