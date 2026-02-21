@@ -71,7 +71,7 @@
 
 <li
 	class={`grid grid-cols-[auto_1fr] items-start gap-3 rounded-md px-3 py-2 ${
-		item.eliminated ? 'bg-zinc-100 opacity-60' : 'bg-zinc-50'
+		item.eliminated ? 'bg-transparent opacity-60' : 'bg-zinc-50'
 	}`}
 >
 	<div class="flex items-center gap-2">
@@ -168,10 +168,10 @@
 			</div>
 			<button
 				type="button"
-				class={`mt-1 flex size-9 shrink-0 items-center justify-center rounded-md border transition ${
+				class={`mt-1 flex size-9 shrink-0 items-center justify-center transition ${
 					item.eliminated
-						? 'border-zinc-300 bg-zinc-200 text-zinc-700 hover:bg-zinc-300'
-						: 'border-red-200 bg-red-100 text-red-700 hover:bg-red-200'
+						? 'text-zinc-600 hover:text-zinc-800'
+						: 'text-red-600 hover:text-red-700'
 				}`}
 				onclick={() => void onToggleEliminated(item.id, !item.eliminated)}
 				aria-label={item.eliminated ? 'Restore track' : 'Eliminate track'}
@@ -186,7 +186,7 @@
 				{:else}
 					<svg viewBox="0 0 24 24" class="size-5 fill-current" aria-hidden="true">
 						<path
-							d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM7 10h2v8H7v-8z"
+							d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm6.32 5.1L7.1 18.32A8 8 0 0 1 18.32 7.1zM5.68 16.9L16.9 5.68A8 8 0 0 1 5.68 16.9z"
 						></path>
 					</svg>
 				{/if}

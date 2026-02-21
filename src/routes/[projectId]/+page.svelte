@@ -86,6 +86,12 @@
 			leaderboard.filter((item) => !item.eliminated).map((item) => item.rating)
 		)
 	);
+	const leaderboardActive = $derived(
+		leaderboard.filter((item) => !item.eliminated)
+	);
+	const leaderboardEliminated = $derived(
+		leaderboard.filter((item) => item.eliminated)
+	);
 
 	const chooseWinner = async (winnerId: string) => {
 		if (!currentPair) return;
@@ -290,7 +296,7 @@
 				</div>
 			</div>
 			<ol class="space-y-2">
-				{#each leaderboard as item, index}
+				{#each leaderboardActive as item, index}
 					<CandidateTrack
 						{item}
 						projectId={data.project.id}
@@ -301,6 +307,22 @@
 				{/each}
 			</ol>
 		</section>
+		{#if leaderboardEliminated.length}
+			<section class="space-y-2">
+				<h3 class="text-sm font-medium text-zinc-500">Eliminated</h3>
+				<ol class="space-y-2">
+					{#each leaderboardEliminated as item, index}
+						<CandidateTrack
+							{item}
+							projectId={data.project.id}
+							index={leaderboardActive.length + index}
+							onAudioPlay={handleAudioPlay}
+							onToggleEliminated={toggleEliminated}
+						/>
+					{/each}
+				</ol>
+			</section>
+		{/if}
 	{/if}
 
 	{#if showCloneDialog}
