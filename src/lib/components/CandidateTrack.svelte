@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import type { AudioItem } from '../../routes/[projectId]/+page.server';
 	import type { Rating } from 'ts-trueskill';
 
@@ -6,18 +7,26 @@
 		item: AudioItem & { rating: Rating };
 		index: number;
 		onAudioPlay: (event: Event) => void;
+		onNoteSave: (audioFileId: string, note: string) => Promise<boolean>;
 	};
 
-	let { item, index, onAudioPlay }: Props = $props();
+	let { item, index, onAudioPlay, onNoteSave }: Props = $props();
 
 	let audioEl: HTMLAudioElement | undefined = $state();
 	let isPlaying = $state(false);
 	let currentTime = $state(0);
 	let duration = $state(0);
 	let playbackRate = $state(1);
+	let note = $state('');
+	let isNoteSaved = $state(true);
+	let noteSaveTimeout: ReturnType<typeof setTimeout> | undefined = $state();
 	let progress = $derived(
 		duration ? (Math.min(currentTime, duration) / duration) * 100 : 0
 	);
+
+	$effect(() => {
+		note = item.note;
+	});
 
 	const togglePlay = async () => {
 		if (!audioEl) return;
@@ -59,6 +68,27 @@
 		playbackRate = Number(target.value);
 		audioEl.playbackRate = playbackRate;
 	};
+
+	const onNoteInput = (event: Event) => {
+		const target = event.currentTarget as HTMLTextAreaElement;
+		note = target.value;
+		item.note = target.value;
+		isNoteSaved = true;
+
+		if (noteSaveTimeout) {
+			clearTimeout(noteSaveTimeout);
+		}
+
+		noteSaveTimeout = setTimeout(async () => {
+			isNoteSaved = await onNoteSave(item.id, note);
+		}, 500);
+	};
+
+	onDestroy(() => {
+		if (noteSaveTimeout) {
+			clearTimeout(noteSaveTimeout);
+		}
+	});
 </script>
 
 <li
@@ -143,6 +173,18 @@
 					value="2">2x</option
 				>
 			</select>
+		</div>
+		<div class="mt-2">
+			<textarea
+				class="w-full rounded-md border border-zinc-200 px-2 py-1.5 text-xs text-zinc-700 outline-none transition focus:border-zinc-400"
+				rows="2"
+				placeholder="Add a note..."
+				value={note}
+				oninput={onNoteInput}
+			></textarea>
+			{#if !isNoteSaved}
+				<p class="mt-1 text-[11px] text-red-600">Could not save note.</p>
+			{/if}
 		</div>
 		<audio
 			class="hidden"

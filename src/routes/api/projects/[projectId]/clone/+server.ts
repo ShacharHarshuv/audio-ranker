@@ -14,7 +14,7 @@ export const POST = async ({ params, request }) => {
 		include: {
 			audioFiles: {
 				orderBy: { createdAt: 'asc' },
-				select: { alias: true, filename: true, url: true }
+				select: { alias: true, note: true, filename: true, url: true }
 			}
 		}
 	});
@@ -31,6 +31,7 @@ export const POST = async ({ params, request }) => {
 		data: source.audioFiles.map((file) => ({
 			projectId: clone.id,
 			alias: file.alias,
+			note: file.note,
 			filename: file.filename,
 			url: file.url
 		}))

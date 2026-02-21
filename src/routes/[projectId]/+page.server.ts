@@ -30,6 +30,7 @@ export const load = async ({ params }) => {
 		audioItems: project.audioFiles.map((file) => ({
 			id: file.id,
 			alias: file.alias,
+			note: file.note,
 			src: file.url,
 			filename: file.filename
 		})),

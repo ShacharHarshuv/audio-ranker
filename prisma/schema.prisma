@@ -21,6 +21,7 @@ model AudioFile {
   id        String        @id @default(cuid())
   projectId String
   alias     String
+  note      String        @default("")
   filename  String
   url       String
   createdAt DateTime      @default(now())
