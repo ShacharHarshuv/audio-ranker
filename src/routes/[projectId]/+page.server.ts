@@ -36,3 +36,5 @@ export const load = async ({ params }) => {
 		votes: project.votes
 	};
 };
+
+export type AudioItem = Awaited<ReturnType<typeof load>>['audioItems'][number];

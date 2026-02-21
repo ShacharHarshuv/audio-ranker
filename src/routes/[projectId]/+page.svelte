@@ -5,9 +5,11 @@
 		leaderboardConfidence,
 		pickNextPair
 	} from '$lib/ranker';
+	import CandidateTrack from '$lib/components/CandidateTrack.svelte';
+	import type { PageProps } from './$types';
 	import { Rating } from 'ts-trueskill';
 
-	let { data } = $props();
+	let { data }: PageProps = $props();
 	const currentData = () => data;
 
 	const shuffledItems = [...currentData().audioItems]
@@ -82,9 +84,17 @@
 			currentPair[0].id === winnerId ? currentPair[1].id : currentPair[0].id;
 
 		const previousRatings = Object.fromEntries(
-			Object.entries(ratingsById).map(([id, r]) => [id, { mu: r.mu, sigma: r.sigma }])
+			Object.entries(ratingsById).map(([id, r]) => [
+				id,
+				{ mu: r.mu, sigma: r.sigma }
+			])
 		);
-		undoStack.push({ winnerId, loserId, previousRatings, previousPair: currentPair });
+		undoStack.push({
+			winnerId,
+			loserId,
+			previousRatings,
+			previousPair: currentPair
+		});
 
 		applyResult(ratingsById, winnerId, loserId);
 		currentPair = pickNextPair(shuffledItems, ratingsById);
@@ -239,35 +249,7 @@
 			</div>
 			<ol class="space-y-2">
 				{#each leaderboard as item, index}
-					<li
-						class="grid grid-cols-[2ch_1fr_auto] items-start gap-3 rounded-md bg-zinc-50 px-3 py-2"
-					>
-						<span class="text-xs text-zinc-500">{index + 1}</span>
-						<div class="min-w-0">
-							<span class="truncate text-sm font-medium" title={item.filename}
-								>{item.alias}</span
-							>
-							<audio
-								class="mt-2 w-full"
-								controls
-								preload="metadata"
-								src={item.src}
-								onplay={handleAudioPlay}
-							></audio>
-						</div>
-						<span class="text-xs text-zinc-600">
-							<span class="sm:hidden"
-								>{item.rating.mu.toFixed(2)} | {item.rating.sigma.toFixed(
-									2
-								)}</span
-							>
-							<span class="hidden sm:inline"
-								>mu {item.rating.mu.toFixed(2)} | sigma {item.rating.sigma.toFixed(
-									2
-								)}</span
-							>
-						</span>
-					</li>
+					<CandidateTrack {item} {index} onAudioPlay={handleAudioPlay} />
 				{/each}
 			</ol>
 		</section>
@@ -289,8 +271,9 @@
 				tabindex="-1"
 			>
 				<h2 class="mb-4 text-lg font-semibold">Clone Project</h2>
-				<label class="mb-1 block text-sm font-medium text-zinc-700" for="clone-name"
-					>Project name</label
+				<label
+					class="mb-1 block text-sm font-medium text-zinc-700"
+					for="clone-name">Project name</label
 				>
 				<input
 					id="clone-name"
@@ -334,7 +317,8 @@
 			>
 				<h2 class="mb-2 text-lg font-semibold">Reset all ratings?</h2>
 				<p class="mb-4 text-sm text-zinc-600">
-					This will permanently delete all votes and reset every rating to its default. This cannot be undone.
+					This will permanently delete all votes and reset every rating to its
+					default. This cannot be undone.
 				</p>
 				<div class="flex justify-end gap-2">
 					<button
