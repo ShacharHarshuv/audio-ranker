@@ -91,67 +91,71 @@ let { item, projectId, index, onAudioPlay }: Props = $props();
 		</button>
 	</div>
 	<div class="min-w-0">
-		<div class="flex items-center justify-between gap-2">
-			<span
-				class="block truncate text-sm font-medium leading-6"
-				title={item.filename}
-			>
-				{item.alias}
-			</span>
-			<span class="shrink-0 text-xs text-zinc-600">
-				<span class="sm:hidden"
-					>{item.rating.mu.toFixed(2)} | {item.rating.sigma.toFixed(2)}</span
-				>
-				<span class="hidden sm:inline"
-					>mu {item.rating.mu.toFixed(2)} | sigma {item.rating.sigma.toFixed(
-						2
-					)}</span
-				>
-			</span>
-		</div>
-		<div class="flex items-center">
-			<input
-				class="seek w-full"
-				type="range"
-				min="0"
-				max={duration || 0}
-				step="0.01"
-				value={Math.min(currentTime, duration || 0)}
-				style={`--seek-progress: ${progress}%`}
-				oninput={onSeek}
+		<div class="flex flex-col gap-2 lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-3">
+			<div class="min-w-0">
+				<div class="flex items-center justify-between gap-2">
+					<span
+						class="block truncate text-sm font-medium leading-6"
+						title={item.filename}
+					>
+						{item.alias}
+					</span>
+					<span class="shrink-0 text-xs text-zinc-600">
+						<span class="sm:hidden"
+							>{item.rating.mu.toFixed(2)} | {item.rating.sigma.toFixed(2)}</span
+						>
+						<span class="hidden sm:inline"
+							>mu {item.rating.mu.toFixed(2)} | sigma {item.rating.sigma.toFixed(
+								2
+							)}</span
+						>
+					</span>
+				</div>
+				<div class="flex items-center">
+					<input
+						class="seek w-full"
+						type="range"
+						min="0"
+						max={duration || 0}
+						step="0.01"
+						value={Math.min(currentTime, duration || 0)}
+						style={`--seek-progress: ${progress}%`}
+						oninput={onSeek}
+					/>
+					<select
+						class="appearance-none cursor-pointer border-0 bg-transparent px-0 py-0 text-right text-xs text-zinc-400 outline-none"
+						value={String(playbackRate)}
+						onchange={onPlaybackRateChange}
+					>
+						<option
+							class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
+							value="0.75">0.75x</option
+						>
+						<option
+							class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
+							value="1">1x</option
+						>
+						<option
+							class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
+							value="1.25">1.25x</option
+						>
+						<option
+							class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
+							value="1.5">1.5x</option
+						>
+						<option
+							class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
+							value="2">2x</option
+						>
+					</select>
+				</div>
+			</div>
+			<CandidateNote
+				{projectId}
+				audioFileId={item.id}
+				{item}
 			/>
-			<select
-				class="appearance-none cursor-pointer border-0 bg-transparent px-0 py-0 text-right text-xs text-zinc-400 outline-none"
-				value={String(playbackRate)}
-				onchange={onPlaybackRateChange}
-			>
-				<option
-					class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
-					value="0.75">0.75x</option
-				>
-				<option
-					class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
-					value="1">1x</option
-				>
-				<option
-					class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
-					value="1.25">1.25x</option
-				>
-				<option
-					class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
-					value="1.5">1.5x</option
-				>
-				<option
-					class="rounded-md border-0 px-2 py-1 text-black shadow-sm"
-					value="2">2x</option
-				>
-			</select>
 		</div>
-		<CandidateNote
-			{projectId}
-			audioFileId={item.id}
-			{item}
-		/>
 		<audio
 			class="hidden"
 			bind:this={audioEl}

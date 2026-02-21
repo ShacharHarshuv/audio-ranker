@@ -50,7 +50,7 @@
 	});
 </script>
 
-<div class="mt-2">
+<div class="mt-2 lg:mt-0">
 	<textarea
 		class="w-full rounded-md border border-zinc-200 px-2 py-1.5 text-xs text-zinc-700 outline-none transition focus:border-zinc-400"
 		rows="2"
